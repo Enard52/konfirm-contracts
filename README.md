@@ -110,7 +110,9 @@ The `testutils` feature must be enabled. Plain `cargo test` fails to compile, be
 stellar contract build --target wasm32v1-none
 ```
 
-Deploy, then initialize. These contracts have **no constructor**: passing `-- --admin ...` at deploy time does not set them up. The `initialize` call is separate. The `channel` example:
+Deploy, then initialize. These contracts have **no constructor**: passing `-- --admin ...` at deploy time does not set them up. The `initialize` call is separate.
+
+The `channel` example:
 
 ```bash
 stellar contract deploy \
@@ -121,6 +123,23 @@ stellar contract deploy \
 stellar contract invoke --id <CONTRACT_ID> \
   --source deployer --network testnet \
   -- initialize --admin <admin_address> --challenge_period_secs 86400
+```
+
+The `treasury` example (note that `signers` is a `Vec<Address>` requiring JSON-array CLI syntax, and `token` requires a Stellar Asset Contract address, e.g. testnet USDC SAC `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` or a token deployed via `stellar contract asset deploy`):
+
+```bash
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/konfirm_treasury.wasm \
+  --source deployer --network testnet
+# -> prints the contract id, <CONTRACT_ID>
+
+stellar contract invoke --id <CONTRACT_ID> \
+  --source deployer --network testnet \
+  -- initialize \
+  --admin <admin_address> \
+  --token CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA \
+  --signers '["GAEMG5TVLEIQYCY3XB4EJT742DIE3FQO53RSESSYJQUZIWZOJQIZATJS","GBRUR4UZHKPQ76S4S7X7INENL6QJ4UGNFIQ3F6VAYJQZRO3F4XBZAIND","GCP57AJNZIVVTPPSD4MJ2SQDMTN4QEAUP64U2OZ4HXSAU4O4A6NOWY2Z"]' \
+  --threshold 2
 ```
 
 Each contract's `initialize` takes its own arguments: `compliance` and `payment` take `--admin`; `treasury` takes `--admin --token --signers --threshold`; `channel` takes `--admin --challenge_period_secs`. Calling it twice fails with `AlreadyInitialized`, which is the protection.

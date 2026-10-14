@@ -153,6 +153,7 @@ artifacts/      local deployment output (gitignored — contains only public add
 
 - Not yet called from `konfirm-backend`'s live checkout/cash-out path — the pilot uses plain classic Stellar payments today.
 - `channel`'s tiered challenge-period design (shorter periods for lower-value channels, longer for higher-value ones) exists as an operational recommendation, not contract-enforced logic — `initialize` takes one value per channel deployment.
+- `channel` has no delegated-closer mechanism: only `ch.payer` or `ch.payee` can call `initiate_close`. An idle or abandoned channel where neither counterparty initiates a close remains open indefinitely with no operator- or facilitator-level recovery path.
 - No integration tests against a live Soroban RPC endpoint; test coverage is unit-level via `testutils` only.
 
 ## License
